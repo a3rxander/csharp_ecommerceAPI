@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "BouWkJdSqC0=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\a3rxa\\source\\repos\\ecommerceAPI\\ecommerceAPI.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\a3rxa\\.nuget\\packages\\microsoft.aspnetcore.openapi\\9.0.7\\microsoft.aspnetcore.openapi.9.0.7.nupkg.sha512",
+    "C:\\Users\\a3rxa\\.nuget\\packages\\microsoft.openapi\\1.6.17\\microsoft.openapi.1.6.17.nupkg.sha512",
+    "C:\\Users\\a3rxa\\.nuget\\packages\\microsoft.visualstudio.azure.containers.tools.targets\\1.22.1\\microsoft.visualstudio.azure.containers.tools.targets.1.22.1.nupkg.sha512"
+  ],
+  "logs": []
+}
