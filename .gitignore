@@ -1,1 +1,9 @@
-.vs
+# Build results
+bin/
+obj/
+*.user
+*.cache
+.vs/
+*.suo
+*.sln.docstates
+project.lock.json
