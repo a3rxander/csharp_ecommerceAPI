@@ -1,30 +1,32 @@
-# Consulte https://aka.ms/customizecontainer para aprender a personalizar su contenedor de depuraci贸n y c贸mo Visual Studio usa este Dockerfile para compilar sus im谩genes para una depuraci贸n m谩s r谩pida.
-
-# Esta fase se usa cuando se ejecuta desde VS en modo r谩pido (valor predeterminado para la configuraci贸n de depuraci贸n)
 FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
-USER $APP_UID
 WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
+EXPOSE 5000
 
-
-# Esta fase se usa para compilar el proyecto de servicio
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+
+# Copiar la soluci髇 y el csproj ra韟
+COPY ["ecommerceAPI.sln", "."]
 COPY ["ecommerceAPI.csproj", "."]
-RUN dotnet restore "./ecommerceAPI.csproj"
+
+# Restaurar dependencias
+RUN dotnet restore "ecommerceAPI.csproj"
+
+# Copiar todo el c骴igo
 COPY . .
-WORKDIR "/src/."
-RUN dotnet build "./ecommerceAPI.csproj" -c $BUILD_CONFIGURATION -o /app/build
 
-# Esta fase se usa para publicar el proyecto de servicio que se copiar谩 en la fase final.
+# Compilar en Release
+RUN dotnet build "ecommerceAPI.csproj" -c Release -o /app/build
+
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "./ecommerceAPI.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ecommerceAPI.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-# Esta fase se usa en producci贸n o cuando se ejecuta desde VS en modo normal (valor predeterminado cuando no se usa la configuraci贸n de depuraci贸n)
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ecommerceAPI.dll"]
+
+# Crear carpeta de logs
+RUN mkdir -p /app/logs
+
+# Ejecutar
+ENTRYPOINT ["dotnet", "ecommerceAPI.dll"] 
