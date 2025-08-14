@@ -49,11 +49,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 .Where(c => c.Id == id && c.IsActive)
                 .FirstOrDefaultAsync();
         } 
-        public Task UpdateAsync(Category category)
+        public async Task UpdateAsync(Category category)
         {
             category.UpdatedAt = DateTime.UtcNow;
             _db.Categories.Update(category);
-            return _db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
         }
     }
 }
