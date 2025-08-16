@@ -14,6 +14,23 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
                 .ReverseMap();
             CreateMap<UpdateCategoryDto, Category>()
                 .ReverseMap();
+
+            CreateMap<Product, ProductDto>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
+                .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Category.Description))
+                .ReverseMap()
+                .ForMember(dest => dest.Category, opt => opt.Ignore());
+            CreateMap<CreateProductDto, Product>()
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<UpdateProductDto, Product>()
+                .ForMember(dest => dest.Category, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<UpdateProductStockDto, Product>()
+                .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
+                .ReverseMap();
+
+
         }
     }
 }

@@ -28,7 +28,6 @@
     <Folder Include="src\EcommerceAPI.API\Middleware\" />
     <Folder Include="src\EcommerceAPI.API\Filters\" />
     <Folder Include="src\EcommerceAPI.Application\Interfaces\" />
-    <Folder Include="src\EcommerceAPI.Application\DTOs\" />
     <Folder Include="src\EcommerceAPI.Domain\Enums\" />
     <Folder Include="src\EcommerceAPI.Domain\ValueObjects\" />
     <Folder Include="logs\" />

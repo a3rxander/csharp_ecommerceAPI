@@ -16,6 +16,6 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
         public string ImageUrl { get; set; } = string.Empty;
         // Navigation properties
         public Category Category { get; set; } = new Category();
-        public int CategoryId { get; set; } 
+        public Guid CategoryId { get; set; } 
     }
 }

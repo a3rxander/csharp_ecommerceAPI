@@ -6,9 +6,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Repositories
     {
         Task<IEnumerable<Product>> GetAllAsync();
         Task<Product?> GetByIdAsync(Guid id);
-        Task<Product> AddAsync(Product product)
+        Task<Product> AddAsync(Product product);
         Task UpdateAsync(Product product);
         Task DeleteAsync(Guid id);
         Task<bool> ExistsAsync(Guid id);
+
+        Task<IEnumerable<Product>> GetProductsByCategoryAsync(Guid categoryId);
     }
 }
