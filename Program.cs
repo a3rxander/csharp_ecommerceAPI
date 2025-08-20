@@ -13,6 +13,9 @@ using Swashbuckle.AspNetCore.Swagger;
 
 
 var builder = WebApplication.CreateBuilder(args);
+// log para probar
+Console.WriteLine("DefaultConnection => " +
+    builder.Configuration.GetConnectionString("DefaultConnection"));
 
 // Add services to the container.
 
