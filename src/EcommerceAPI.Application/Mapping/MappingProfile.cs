@@ -30,6 +30,14 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
                 .ForMember(dest => dest.Stock, opt => opt.MapFrom(src => src.Stock))
                 .ReverseMap();
 
+            CreateMap<User, UserDto>().ReverseMap();
+            CreateMap<RegisterUserDto, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<UpdateUserDto , User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
+                .ReverseMap();
+
 
         }
     }

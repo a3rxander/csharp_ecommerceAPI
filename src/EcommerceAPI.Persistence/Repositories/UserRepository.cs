@@ -58,6 +58,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Users.Where(u => u.Username == username).AnyAsync();
         }
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            return await _db.Users.Where(u => u.Username == username && u.IsActive).FirstOrDefaultAsync();
+        }
 
         public Task LogoutAsync(Guid userId)
         {

@@ -7,6 +7,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Repositories
         Task<IEnumerable<User>> GetAllUsersAsync();
         Task<User?> GetByIdAsync(Guid id);
         Task<bool> IsUniqueUsername(string username);  
+        Task<User?> GetByUsernameAsync(string username);
         Task UpdateAsync(User user);
         Task DeleteAsync(Guid id);
  
