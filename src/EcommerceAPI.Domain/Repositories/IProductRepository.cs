@@ -12,5 +12,6 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Repositories
         Task<bool> ExistsAsync(Guid id);
 
         Task<IEnumerable<Product>> GetProductsByCategoryAsync(Guid categoryId);
+        Task<IEnumerable<Product>> GetProductsBySellerAsync(Guid sellerId);
     }
 }

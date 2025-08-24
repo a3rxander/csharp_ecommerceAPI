@@ -39,6 +39,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
             return await _db.Products
                 .Where(p => p.IsActive)
                 .Include(p => p.Category) // Eager loading of Category
+                .Include(p => p.Seller) // Eager loading of Seller
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }
@@ -48,6 +49,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
             return await _db.Products
                 .Where(p => p.Id == id && p.IsActive)
                 .Include(p => p.Category) // Eager loading of Category
+                .Include(p => p.Seller) // Eager loading of Seller
                 .FirstOrDefaultAsync();
         }
 
@@ -62,6 +64,16 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Products
                 .Where(p => p.CategoryId == categoryId && p.IsActive)
+                .Include(p => p.Seller) // Eager loading of Seller
+                .OrderBy(p => p.Name)
+                .ToListAsync();
+        }
+
+        public async Task<IEnumerable<Product>> GetProductsBySellerAsync(Guid sellerId)
+        {
+            return await _db.Products
+                .Where(p => p.SellerId == sellerId && p.IsActive)
+                .Include(p => p.Category) // Eager loading of Category
                 .OrderBy(p => p.Name)
                 .ToListAsync();
         }

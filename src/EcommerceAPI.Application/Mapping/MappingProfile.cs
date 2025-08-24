@@ -18,6 +18,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.Name))
                 .ForMember(dest => dest.CategoryDescription, opt => opt.MapFrom(src => src.Category.Description))
+                .ForMember(dest => dest.SellerName, opt => opt.MapFrom(src => src.Seller.FirstName + " " + src.Seller.LastName))
                 .ReverseMap()
                 .ForMember(dest => dest.Category, opt => opt.Ignore());
             CreateMap<CreateProductDto, Product>()

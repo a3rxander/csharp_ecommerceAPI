@@ -77,6 +77,16 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(products);
         }
+        [HttpGet("seller/{sellerId}")]
+        public async Task<IActionResult> GetProductsBySeller(Guid sellerId)
+        {
+            var products = await _productService.GetProductsBySellerAsync(sellerId);
+            if (products == null || !products.Any())
+            {
+                return NotFound("No products found for this seller.");
+            }
+            return Ok(products);
+        }
         [HttpPut("{id}/stock")]
         public async Task<IActionResult> UpdateProductStock(Guid id, [FromBody] UpdateProductStockDto updateProductStockDto)
         {

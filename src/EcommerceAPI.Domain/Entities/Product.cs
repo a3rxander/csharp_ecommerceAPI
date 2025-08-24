@@ -17,5 +17,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
         // Navigation properties
         public Category Category { get; set; } = new Category();
         public Guid CategoryId { get; set; } 
+        public User Seller { get; set; } = new User();
+        public Guid SellerId { get; set; }
     }
 }

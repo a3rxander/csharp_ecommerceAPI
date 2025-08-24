@@ -9,23 +9,25 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository;
+        private readonly IUserRepository _userRepository;
         private readonly IMapper _mapper;
-        public ProductService(IProductRepository productRepository, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IUserRepository userRepository, IMapper mapper)
         {
             _productRepository = productRepository;
+            _userRepository = userRepository;
             _mapper = mapper;
         }
 
 
         public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
         {
-           var products = await _productRepository.GetAllAsync();
-           return _mapper.Map<IEnumerable<ProductDto>>(products);
+            var products = await _productRepository.GetAllAsync();
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(Guid id)
         {
-           var product = await _productRepository.GetByIdAsync(id);
+            var product = await _productRepository.GetByIdAsync(id);
             return product == null ? null : _mapper.Map<ProductDto>(product);
         }
 
@@ -52,7 +54,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public async Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId)
         {
-            var products = await _productRepository.GetProductsByCategoryAsync(categoryId); 
+            var products = await _productRepository.GetProductsByCategoryAsync(categoryId);
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
@@ -65,7 +67,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             }
             var updatedProduct = _mapper.Map(productDto, existingProduct);
             updatedProduct.UpdatedAt = DateTime.UtcNow;
-            await _productRepository.UpdateAsync(updatedProduct); 
+            await _productRepository.UpdateAsync(updatedProduct);
             return true;
         }
         public async Task<bool> UpdateProductStockAsync(Guid id, UpdateProductStockDto updateProductStockDto)
@@ -80,6 +82,12 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             await _productRepository.UpdateAsync(existingProduct);
             return true;
 
+        }
+        
+        public async Task<IEnumerable<ProductDto>> GetProductsBySellerAsync(Guid sellerId)
+        {
+            var products = await _productRepository.GetProductsBySellerAsync(sellerId);
+            return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
     }
 }

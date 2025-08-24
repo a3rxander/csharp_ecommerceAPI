@@ -11,6 +11,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Interfaces
         Task<bool> DeleteProductAsync(Guid id);
         Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId);
         Task<bool> UpdateProductStockAsync(Guid id, UpdateProductStockDto updateProductStockDto);
+        Task<IEnumerable<ProductDto>> GetProductsBySellerAsync(Guid sellerId);
 
     }
 }

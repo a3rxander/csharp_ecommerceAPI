@@ -11,6 +11,8 @@
         public Guid CategoryId { get; set; }
         public string CategoryName { get; set; } = string.Empty;
         public string CategoryDescription { get; set; } = string.Empty;
+        public Guid SellerId { get; set; }
+        public string SellerName { get; set; } = string.Empty;
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
@@ -23,6 +25,8 @@
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
+        
+        public Guid SellerId { get; set; }
     }
     public class UpdateProductDto
     {
