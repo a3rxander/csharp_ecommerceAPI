@@ -1,8 +1,9 @@
 
-using System.Data.Entity;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
+using Microsoft.EntityFrameworkCore;
+
 
 namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
 {

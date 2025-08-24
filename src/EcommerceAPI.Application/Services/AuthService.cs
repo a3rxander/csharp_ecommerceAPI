@@ -51,7 +51,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         public async Task<AuthResponseDto?> RegisterAsync(RegisterUserDto registerDto)
         {
             var ifExistUsername = await _userRepository.IsUniqueUsername(registerDto.Username);
-            if (!ifExistUsername) return null;
+            if (ifExistUsername) return null;
             var user = _mapper.Map<User>(registerDto);
             user.Id = Guid.NewGuid();
             user.CreatedAt = DateTime.UtcNow;
@@ -81,6 +81,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             await _userRepository.UpdateAsync(user);
             return true;
             
+        }
+
+        public async Task<UserDto?> GetUserByIdAsync(Guid id)
+        {
+            var user = await _userRepository.GetByIdAsync(id);
+            if (user == null) return null;
+            return _mapper.Map<UserDto>(user);
         }
 
         private string GenerateJwtToken(User user)

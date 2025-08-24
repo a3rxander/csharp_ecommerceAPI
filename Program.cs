@@ -59,6 +59,17 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+// CORS configuration
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll", policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader();
+    });
+});
+
 //Swagger configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -78,7 +89,7 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "Hola desde Ecommerce API en Docker con Swagger");
 
-
+app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
