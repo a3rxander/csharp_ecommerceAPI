@@ -39,6 +39,23 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
                 .ForMember(dest => dest.PasswordHash, opt => opt.Ignore())
                 .ReverseMap();
 
+            CreateMap<Order, OrderDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Items, opt => opt.Ignore());
+            CreateMap<CreateOrderDto, Order>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<UpdateOrderDto, Order>()
+                .ForMember(dest => dest.Items, opt => opt.Ignore())
+                .ReverseMap();
+
+            CreateMap<OrderItem, OrderItemDto>()
+                .ReverseMap();
+            CreateMap<CreateOrderItemDto, OrderItem>()
+                .ReverseMap();
+            CreateMap<UpdateOrderItemDto, OrderItem>()
+                .ReverseMap();
+
 
         }
     }
