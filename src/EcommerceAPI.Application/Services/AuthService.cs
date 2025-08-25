@@ -3,6 +3,7 @@ using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
+using ecommerceAPI.src.EcommerceAPI.Domain.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -43,7 +44,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             };
         }
 
-        public async Task LogoutAsync()
+        public Task LogoutAsync()
         {
             throw new NotImplementedException();
         }
@@ -52,6 +53,12 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         {
             var ifExistUsername = await _userRepository.IsUniqueUsername(registerDto.Username);
             if (ifExistUsername) return null;
+
+            //valid Role selection got error
+            if (registerDto.Role != UserRoles.Customer && registerDto.Role != UserRoles.Seller)
+            {
+                return null;
+            }
             var user = _mapper.Map<User>(registerDto);
             user.Id = Guid.NewGuid();
             user.CreatedAt = DateTime.UtcNow;

@@ -20,7 +20,8 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterUserDto registerDto)
-        {
+        { 
+
             if (registerDto == null)
             {
                 return BadRequest("Invalid user data.");

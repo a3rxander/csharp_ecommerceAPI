@@ -1,7 +1,9 @@
 ﻿using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.Mvc; 
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Hosting;
 
 namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 {
@@ -32,6 +34,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(category);
         }
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {

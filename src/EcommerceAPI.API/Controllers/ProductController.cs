@@ -1,6 +1,8 @@
 ﻿using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 {
@@ -29,9 +31,20 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(product);
         }
+        [Authorize(Roles = "Seller")]
         [HttpPost]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productDto)
         {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+ 
+            if (userId != productDto.SellerId)
+            {
+                return Unauthorized("You can only create products for your own seller account.");
+            }
             if (productDto == null)
             {
                 return BadRequest("Product data is required.");
