@@ -25,8 +25,6 @@
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public Guid CategoryId { get; set; }
-        
-        public Guid SellerId { get; set; }
     }
     public class UpdateProductDto
     {

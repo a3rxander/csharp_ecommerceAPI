@@ -31,10 +31,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return product == null ? null : _mapper.Map<ProductDto>(product);
         }
 
-        public async Task<ProductDto> CreateProductAsync(CreateProductDto productDto)
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto productDto, Guid sellerId)
         {
             var product = _mapper.Map<Product>(productDto);
             product.Id = Guid.NewGuid();
+            product.SellerId = sellerId;
             product.CreatedAt = DateTime.UtcNow;
             product.UpdatedAt = DateTime.UtcNow;
             product.IsActive = true;
@@ -58,12 +59,12 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto)
+        public async Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto, Guid sellerId)
         {
             var existingProduct = await _productRepository.GetByIdAsync(id);
-            if (existingProduct == null || !existingProduct.IsActive)
+            if (existingProduct == null || !existingProduct.IsActive || existingProduct.SellerId != sellerId)
             {
-                return false; // Product does not exist or is inactive
+                return false; // Product does not exist, is inactive, or belongs to another seller
             }
             var updatedProduct = _mapper.Map(productDto, existingProduct);
             updatedProduct.UpdatedAt = DateTime.UtcNow;
