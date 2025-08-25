@@ -40,22 +40,18 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 return Unauthorized("Invalid token.");
             }
- 
-            if (userId != productDto.SellerId)
-            {
-                return Unauthorized("You can only create products for your own seller account.");
-            }
             if (productDto == null)
             {
                 return BadRequest("Product data is required.");
             }
-            var createdProduct = await _productService.CreateProductAsync(productDto);
+            var createdProduct = await _productService.CreateProductAsync(productDto, userId);
             if (createdProduct == null)
             {
                 return BadRequest("Failed to create product.");
             }
             return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
         }
+        [Authorize(Roles = "Seller")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] UpdateProductDto productDto)
         {
@@ -63,7 +59,21 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 return BadRequest("Product data is required.");
             }
-            var updated = await _productService.UpdateProductAsync(id, productDto);
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+            var existingProduct = await _productService.GetProductByIdAsync(id);
+            if (existingProduct == null)
+            {
+                return NotFound("Product not found.");
+            }
+            if (existingProduct.SellerId != userId)
+            {
+                return Forbid();
+            }
+            var updated = await _productService.UpdateProductAsync(id, productDto, userId);
             if (!updated)
             {
                 return NotFound("Product not found or update failed.");

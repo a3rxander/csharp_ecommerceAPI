@@ -6,8 +6,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Interfaces
     {
         Task<IEnumerable<ProductDto>> GetAllProductsAsync();
         Task<ProductDto?> GetProductByIdAsync(Guid id);
-        Task<ProductDto> CreateProductAsync(CreateProductDto productDto);
-        Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto);
+        Task<ProductDto> CreateProductAsync(CreateProductDto productDto, Guid sellerId);
+        Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto, Guid sellerId);
         Task<bool> DeleteProductAsync(Guid id);
         Task<IEnumerable<ProductDto>> GetProductsByCategoryAsync(Guid categoryId);
         Task<bool> UpdateProductStockAsync(Guid id, UpdateProductStockDto updateProductStockDto);
