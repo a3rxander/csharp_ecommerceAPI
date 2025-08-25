@@ -19,6 +19,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         }
         [HttpGet]
 
+        [ResponseCache(Duration = 10)]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
         {
             var categories = await _categoryService.GetAllCategoriesAsync(); 

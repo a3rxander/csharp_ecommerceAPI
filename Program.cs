@@ -24,7 +24,8 @@ Console.WriteLine("DefaultConnection => " +
 
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 
-builder.Services.AddControllers(); 
+builder.Services.AddControllers();
+builder.Services.AddResponseCaching();
 
 builder.Services.AddDbContext<EcommerceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -120,6 +121,7 @@ app.MapGet("/", () => "Hola desde Ecommerce API en Docker con Swagger");
 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
+app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization();
 
