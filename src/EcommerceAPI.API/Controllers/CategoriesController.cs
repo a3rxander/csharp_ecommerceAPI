@@ -1,4 +1,5 @@
-﻿using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
+﻿using Asp.Versioning;
+using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
@@ -6,9 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Razor.Hosting;
 
 namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
-{
+{ 
+    [Route("api/v{version:apiVersion}/[controller]")]
+    [ApiVersion("1.0")]
     [ApiController]
-    [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
         private readonly ICategoryService _categoryService;
@@ -22,7 +24,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         [ResponseCache(Duration = 10)]
         public async Task<ActionResult<IEnumerable<CategoryDto>>> GetAllCategories()
         {
-            var categories = await _categoryService.GetAllCategoriesAsync(); 
+            var categories = await _categoryService.GetAllCategoriesAsync();
             return Ok(categories);
         }
         [HttpGet("{id:guid}")]
@@ -71,6 +73,6 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return NoContent();
         }
-         
+
     }
 }
