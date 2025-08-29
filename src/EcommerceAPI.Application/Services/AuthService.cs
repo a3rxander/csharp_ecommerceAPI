@@ -3,6 +3,7 @@ using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
+using Microsoft.AspNetCore.Identity;
 using ecommerceAPI.src.EcommerceAPI.Domain.Constants;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -16,25 +17,24 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
     public class AuthService : IAuthService
     {
-        private readonly IMapper _mapper;
-        private readonly IUserRepository _userRepository;
-
+        private readonly IMapper _mapper; 
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IMapper mapper, IUserRepository userRepository, IConfiguration configuration)
+        public AuthService(IMapper mapper, IUserRepository userRepository, IConfiguration configuration, UserManager<User> userManager)
         {
-            _mapper = mapper;
-            _userRepository = userRepository;
+            _mapper = mapper; 
             _configuration = configuration;
+            _userManager = userManager;
         }
         public async Task<AuthResponseDto?> LoginAsync(LoginUserDto loginDto)
         {
-            var user = await _userRepository.GetByUsernameAsync(loginDto.Username);
-            if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+            var user = await _userManager.FindByNameAsync(loginDto.Username);
+            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
                 return null;
             }
-
+            
             var token = GenerateJwtToken(user);
             var userDto = _mapper.Map<UserDto>(user);
             return new AuthResponseDto
@@ -46,30 +46,36 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public Task LogoutAsync()
         {
-            throw new NotImplementedException();
+            // For JWT, logout is handled client-side by discarding the token.
+            return Task.CompletedTask;
         }
 
         public async Task<AuthResponseDto?> RegisterAsync(RegisterUserDto registerDto)
         {
-            var ifExistUsername = await _userRepository.IsUniqueUsername(registerDto.Username);
-            if (ifExistUsername) return null;
+            var ifExistUsername = await _userManager.FindByNameAsync(registerDto.Username);
+            if (ifExistUsername != null) return null;
+            if (string.IsNullOrEmpty(registerDto.Email))
+            {
+                return null;
+            }
+            var ifExistEmail = await _userManager.FindByEmailAsync(registerDto.Email);
+            if (ifExistEmail != null) return null;
 
             //valid Role selection got error
             if (registerDto.Role != UserRoles.Customer && registerDto.Role != UserRoles.Seller)
             {
                 return null;
             }
-            var user = _mapper.Map<User>(registerDto);
-            user.Id = Guid.NewGuid();
+            var user = _mapper.Map<User>(registerDto); 
             user.CreatedAt = DateTime.UtcNow;
-            user.UpdatedAt = DateTime.UtcNow;
-            user.IsActive = true;
-            //Password Hashing with BCrypt
-            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password);
-
-            var createdUser = await _userRepository.RegisterAsync(user);
-            var userDto = _mapper.Map<UserDto>(createdUser);
-            var token = GenerateJwtToken(createdUser);
+            user.UpdatedAt = DateTime.UtcNow; 
+            var result = await _userManager.CreateAsync(user, registerDto.Password);
+            if (!result.Succeeded)
+            {
+                return null;
+            }
+            var userDto = _mapper.Map<UserDto>(user);
+            var token = GenerateJwtToken(user);
             return new AuthResponseDto
             {
                 Token = token,
@@ -79,20 +85,20 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public async Task<bool> UpdateUserAsync(Guid id, UpdateUserDto updateDto)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return false;
             user.FirstName = updateDto.FirstName ?? user.FirstName;
             user.LastName = updateDto.LastName ?? user.LastName;
             user.Email = updateDto.Email ?? user.Email;
             user.UpdatedAt = DateTime.UtcNow;
-            await _userRepository.UpdateAsync(user);
+            await _userManager.UpdateAsync(user);
             return true;
             
         }
 
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
-            var user = await _userRepository.GetByIdAsync(id);
+            var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return null;
             return _mapper.Map<UserDto>(user);
         }
@@ -105,7 +111,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             var claims = new[]
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-                new Claim(JwtRegisteredClaimNames.UniqueName, user.Username),
+                new Claim(JwtRegisteredClaimNames.UniqueName, user.UserName ?? string.Empty),
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Role, user.Role)
             };

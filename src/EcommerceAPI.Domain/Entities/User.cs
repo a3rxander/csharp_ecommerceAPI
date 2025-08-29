@@ -1,13 +1,16 @@
-﻿namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
+﻿using Microsoft.AspNetCore.Identity;
+
+namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
 {
-    public class User : BaseEntity
+    public class User : IdentityUser
     {
-        public string Username { get; set; } = string.Empty;
-        public string PasswordHash { get; set; } = string.Empty;
-        public string? FirstName { get; set; } = string.Empty;
-        public string? LastName { get; set; } = string.Empty;
-        public string? Email { get; set; } = string.Empty; 
-        public string Role { get; set; } = "Customer"; // Possible values: "Customer", "Admin", "Seller"    
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
+        public DateTime CreatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; }
+        public DateTime? DeletedAt { get; set; }
+        public bool IsActive { get; set; }
+        public string Role { get; set; } = "Customer";   
 
     }
 }

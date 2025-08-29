@@ -8,13 +8,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 {
     public class ProductService : IProductService
     {
-        private readonly IProductRepository _productRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly IProductRepository _productRepository; 
         private readonly IMapper _mapper;
-        public ProductService(IProductRepository productRepository, IUserRepository userRepository, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper)
         {
-            _productRepository = productRepository;
-            _userRepository = userRepository;
+            _productRepository = productRepository; 
             _mapper = mapper;
         }
 

@@ -1,6 +1,8 @@
 using ecommerceAPI.src.EcommerceAPI.Application.Mapping;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
-using Microsoft.EntityFrameworkCore; 
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Repositories;
@@ -31,7 +33,19 @@ builder.Services.AddResponseCaching();
 builder.Services.AddDbContext<EcommerceDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Identity configuration
 
+builder.Services.AddIdentity<User, IdentityRole>(options =>
+{
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.User.RequireUniqueEmail = true;
+})
+    .AddEntityFrameworkStores<EcommerceDbContext>()
+    .AddDefaultTokenProviders();
 // dependency injection
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
@@ -127,10 +141,8 @@ if (app.Environment.IsDevelopment())
 { 
     app.UseSwagger();
     app.UseSwaggerUI(c =>
-    {
-        // Cambia la URL seg�n c�mo lo expongas
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API V1");
-        c.RoutePrefix = string.Empty; // Para que Swagger est� en la ra�z
+    { 
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ecommerce API V1"); 
     });
 }
 
