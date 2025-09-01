@@ -9,11 +9,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     public class ProductService : IProductService
     {
         private readonly IProductRepository _productRepository; 
+        private readonly ICategoryRepository _categoryRepository;
         private readonly IMapper _mapper;
-        public ProductService(IProductRepository productRepository, IMapper mapper)
+        public ProductService(IProductRepository productRepository, IMapper mapper, ICategoryRepository categoryRepository)
         {
-            _productRepository = productRepository; 
+            _productRepository = productRepository;
             _mapper = mapper;
+            _categoryRepository = categoryRepository;
         }
 
 
@@ -29,8 +31,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return product == null ? null : _mapper.Map<ProductDto>(product);
         }
 
-        public async Task<ProductDto> CreateProductAsync(CreateProductDto productDto, Guid sellerId)
+        public async Task<ProductDto> CreateProductAsync(CreateProductDto productDto, string sellerId)
         {
+            //validate category exists can be added here
+            if(!await _categoryRepository.ExistsAsync(productDto.CategoryId))
+            {
+                throw new ArgumentException("Invalid CategoryId");
+            }
             var product = _mapper.Map<Product>(productDto);
             product.Id = Guid.NewGuid();
             product.SellerId = sellerId;
@@ -38,7 +45,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             product.UpdatedAt = DateTime.UtcNow;
             product.IsActive = true;
             var createdProduct = await _productRepository.AddAsync(product);
-            return _mapper.Map<ProductDto>(createdProduct);
+
+            // Reload with navigation properties (Category, Seller) to populate mapping fields
+            var fullProduct = await _productRepository.GetByIdAsync(createdProduct.Id) ?? createdProduct;
+            return _mapper.Map<ProductDto>(fullProduct);
         }
 
         public async Task<bool> DeleteProductAsync(Guid id)
@@ -57,7 +67,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto, Guid sellerId)
+        public async Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto, string sellerId)
         {
             var existingProduct = await _productRepository.GetByIdAsync(id);
             if (existingProduct == null || !existingProduct.IsActive || existingProduct.SellerId != sellerId)
@@ -83,7 +93,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         }
         
-        public async Task<IEnumerable<ProductDto>> GetProductsBySellerAsync(Guid sellerId)
+        public async Task<IEnumerable<ProductDto>> GetProductsBySellerAsync(string sellerId)
         {
             var products = await _productRepository.GetProductsBySellerAsync(sellerId);
             return _mapper.Map<IEnumerable<ProductDto>>(products);

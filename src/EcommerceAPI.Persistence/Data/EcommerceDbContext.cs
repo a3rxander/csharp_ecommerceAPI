@@ -17,7 +17,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Data
         public DbSet<OrderItem> OrderItems { get; set; }
         public DbSet<Payment> Payments { get; set; }
         public DbSet<Shipping> Shippings { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<ProductImage> ProductImages { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +25,15 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Data
             modelBuilder.Entity<Product>()
                 .Property(p => p.Price)
                 .HasColumnType("decimal(18,2)");
+ 
+
+            modelBuilder.Entity<OrderItem>()
+                .Property(oi => oi.UnitPrice)
+                .HasColumnType("decimal(18,2)");
+            
+
+
+            
         }
     }
 

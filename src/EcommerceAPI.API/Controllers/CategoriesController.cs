@@ -37,7 +37,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(category);
         }
-        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "Seller")]
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {

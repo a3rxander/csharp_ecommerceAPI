@@ -46,11 +46,17 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
 
         public async Task<Product?> GetByIdAsync(Guid id)
         {
-            return await _db.Products
+            var product = await _db.Products
                 .Where(p => p.Id == id && p.IsActive)
                 .Include(p => p.Category) // Eager loading of Category
                 .Include(p => p.Seller) // Eager loading of Seller
                 .FirstOrDefaultAsync();
+
+                Console.WriteLine($"Seller loaded? {product?.Seller != null}");
+                Console.WriteLine($"SellerName DB: {product?.Seller?.FirstName} {product?.Seller?.LastName}");
+
+            return product; 
+            
         }
 
         public async Task UpdateAsync(Product product)
@@ -69,7 +75,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 .ToListAsync();
         }
 
-        public async Task<IEnumerable<Product>> GetProductsBySellerAsync(Guid sellerId)
+        public async Task<IEnumerable<Product>> GetProductsBySellerAsync(string sellerId)
         {
             return await _db.Products
                 .Where(p => p.SellerId == sellerId && p.IsActive)

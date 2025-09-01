@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
 
@@ -11,9 +12,11 @@ using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
 namespace ecommerceAPI.Migrations
 {
     [DbContext(typeof(EcommerceDbContext))]
-    partial class EcommerceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250829220945_ProductImageTable")]
+    partial class ProductImageTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -348,8 +351,10 @@ namespace ecommerceAPI.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<string>("SellerId")
-                        .IsRequired()
+                    b.Property<Guid>("SellerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("SellerId1")
                         .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("Stock")
@@ -362,7 +367,7 @@ namespace ecommerceAPI.Migrations
 
                     b.HasIndex("CategoryId");
 
-                    b.HasIndex("SellerId");
+                    b.HasIndex("SellerId1");
 
                     b.ToTable("Products");
                 });
@@ -635,9 +640,7 @@ namespace ecommerceAPI.Migrations
 
                     b.HasOne("ecommerceAPI.src.EcommerceAPI.Domain.Entities.User", "Seller")
                         .WithMany()
-                        .HasForeignKey("SellerId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SellerId1");
 
                     b.Navigation("Category");
 

@@ -15,9 +15,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
         public int Stock { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         // Navigation properties
-        public Category Category { get; set; } = new Category();
+        public Category Category { get; set; } = null!;
         public Guid CategoryId { get; set; } 
-        public User Seller { get; set; } = new User();
-        public Guid SellerId { get; set; }
+        
+        public string SellerId { get; set; }  = string.Empty;
+        public User Seller { get; set; } = null!;
+       public ICollection<ProductImage> ProductImages { get; set; } = new List<ProductImage>();
     }
 }

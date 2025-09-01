@@ -60,6 +60,16 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
             CreateMap<UpdateOrderItemDto, OrderItem>()
                 .ReverseMap();
 
+            CreateMap<ProductImage, ProductImageDto>()
+                .ReverseMap()
+                .ForMember(dest => dest.Product, opt => opt.Ignore());
+            CreateMap<CreateProductImageDto, ProductImage>()
+                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ReverseMap();
+            CreateMap<UpdateProductImageDto, ProductImage>()
+                .ForMember(dest => dest.Product, opt => opt.Ignore())
+                .ReverseMap();
+
 
         }
     }

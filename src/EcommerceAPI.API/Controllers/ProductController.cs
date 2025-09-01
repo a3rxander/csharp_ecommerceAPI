@@ -46,12 +46,12 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 return BadRequest("Product data is required.");
             }
-            var createdProduct = await _productService.CreateProductAsync(productDto, userId);
+            var createdProduct = await _productService.CreateProductAsync(productDto, userIdValue);
             if (createdProduct == null)
             {
                 return BadRequest("Failed to create product.");
             }
-            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+            return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id, version = "1.0" }, createdProduct);
         }
         [Authorize(Roles = "Seller")]
         [HttpPut("{id}")]
@@ -71,11 +71,11 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 return NotFound("Product not found.");
             }
-            if (existingProduct.SellerId != userId)
+            if (existingProduct.SellerId != userIdValue)
             {
                 return Forbid();
             }
-            var updated = await _productService.UpdateProductAsync(id, productDto, userId);
+            var updated = await _productService.UpdateProductAsync(id, productDto, userIdValue);
             if (!updated)
             {
                 return NotFound("Product not found or update failed.");
@@ -103,7 +103,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             return Ok(products);
         }
         [HttpGet("seller/{sellerId}")]
-        public async Task<IActionResult> GetProductsBySeller(Guid sellerId)
+        public async Task<IActionResult> GetProductsBySeller(string sellerId)
         {
             var products = await _productService.GetProductsBySellerAsync(sellerId);
             if (products == null || !products.Any())

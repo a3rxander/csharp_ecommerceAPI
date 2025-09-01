@@ -1,13 +1,13 @@
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-
+using System.ComponentModel.DataAnnotations; 
 namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
 {
     public class Order : BaseEntity
     {
         [Required]
-        public Guid UserId { get; set; }
-        public User User { get; set; } = new User();
+        public  Guid UserId { get; set;}
+        public  User User { get; set; } = null!;
+        
         [Required]
         public DateTime OrderDate { get; set; }
         [Required]
