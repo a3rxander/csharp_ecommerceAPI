@@ -46,7 +46,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return BadRequest("Invalid category data.");
             }
             var createdCategory = await _categoryService.CreateCategoryAsync(createCategoryDto);
-            return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id }, createdCategory);
+            return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id, version = "1.0" }, createdCategory);
         }
 
         [HttpPut("{id:guid}")]
