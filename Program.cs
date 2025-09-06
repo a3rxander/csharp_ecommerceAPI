@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Asp.Versioning;
+using ecommerceAPI.src.EcommerceAPI.Persistence.Seeds;
 
 
 
@@ -31,8 +32,13 @@ builder.Services.AddControllers();
 builder.Services.AddResponseCaching();
 
 builder.Services.AddDbContext<EcommerceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    .UseSeeding((context, _) =>
+  {
+      var appContext = (EcommerceDbContext)context;
+        CategorySeed.SeedCategories(appContext); 
+  })
+);
 // Identity configuration
 
 builder.Services.AddIdentity<User, IdentityRole>(options =>
