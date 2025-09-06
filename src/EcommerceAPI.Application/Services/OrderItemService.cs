@@ -1,4 +1,4 @@
-using AutoMapper;
+using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
@@ -11,13 +11,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     {
         private readonly IOrderRepository _orderRepository;
         private readonly IOrderItemRepository _orderItemRepository;
-        private readonly IMapper _mapper;
 
-        public OrderItemService(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository, IMapper mapper)
+        public OrderItemService(IOrderRepository orderRepository, IOrderItemRepository orderItemRepository)
         {
             _orderRepository = orderRepository;
             _orderItemRepository = orderItemRepository;
-            _mapper = mapper;
         }
 
         public async Task<OrderItemDto> AddItemAsync(Guid orderId, string UserId, CreateOrderItemDto orderItemDto)
@@ -46,7 +44,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             order.UpdatedAt = DateTime.UtcNow;
             await _orderRepository.UpdateAsync(order);
 
-            return _mapper.Map<OrderItemDto>(createdItem);
+            return createdItem.Adapt<OrderItemDto>();
         }
 
         public async Task<bool> DeleteItemAsync(Guid id, string UserId)
@@ -81,7 +79,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             {
                 return null;
             }
-            return _mapper.Map<OrderItemDto>(item);
+            return item.Adapt<OrderItemDto>();
         }
 
         public async Task<IEnumerable<OrderItemDto>> GetItemsByOrderIdAsync(Guid orderId, string UserId)
@@ -92,7 +90,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 return Enumerable.Empty<OrderItemDto>();
             }
             var items = await _orderItemRepository.GetItemsByOrderIdAsync(orderId);
-            return _mapper.Map<IEnumerable<OrderItemDto>>(items);
+            return items.Adapt<IEnumerable<OrderItemDto>>();
         }
 
         public async Task<bool> UpdateItemAsync(Guid id, string UserId, UpdateOrderItemDto orderItemDto)

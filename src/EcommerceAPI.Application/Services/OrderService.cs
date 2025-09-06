@@ -1,4 +1,4 @@
-using AutoMapper;
+using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
@@ -10,12 +10,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
-        private readonly IMapper _mapper;
 
-        public OrderService(IOrderRepository orderRepository, IMapper mapper)
+        public OrderService(IOrderRepository orderRepository)
         {
             _orderRepository = orderRepository;
-            _mapper = mapper;
         }
 
         public async Task<OrderDto> CreateOrderAsync(string UserId, CreateOrderDto orderDto)
@@ -42,7 +40,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             };
             order.TotalAmount = order.Items.Sum(i => i.UnitPrice * i.Quantity);
             var createdOrder = await _orderRepository.AddAsync(order);
-            return _mapper.Map<OrderDto>(createdOrder);
+            return createdOrder.Adapt<OrderDto>();
         }
 
         public async Task<bool> DeleteOrderAsync(Guid id, string UserId)
@@ -63,13 +61,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             {
                 return null;
             }
-            return _mapper.Map<OrderDto>(order);
+            return order.Adapt<OrderDto>();
         }
 
         public async Task<IEnumerable<OrderDto>> GetOrdersByUserAsync(string UserId)
         {
             var orders = await _orderRepository.GetOrdersByUserAsync(UserId);
-            return _mapper.Map<IEnumerable<OrderDto>>(orders);
+            return orders.Adapt<IEnumerable<OrderDto>>();
         }
 
         public async Task<bool> UpdateOrderAsync(Guid id, string UserId, UpdateOrderDto orderDto)

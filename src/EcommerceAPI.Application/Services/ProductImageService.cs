@@ -1,4 +1,4 @@
-using AutoMapper;
+using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
@@ -9,24 +9,22 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     public class ProductImageService : IProductImageService
     {
         private readonly IProductImageRepository _productImageRepository;
-        private readonly IMapper _mapper;
 
-        public ProductImageService(IProductImageRepository productImageRepository, IMapper mapper)
+        public ProductImageService(IProductImageRepository productImageRepository)
         {
             _productImageRepository = productImageRepository;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<ProductImageDto>> GetImagesByProductIdAsync(Guid productId)
         {
             var images = await _productImageRepository.GetImagesByProductIdAsync(productId);
-            return _mapper.Map<IEnumerable<ProductImageDto>>(images);
+            return images.Adapt<IEnumerable<ProductImageDto>>();
         }
 
         public async Task<ProductImageDto?> GetByIdAsync(Guid id)
         {
             var image = await _productImageRepository.GetByIdAsync(id);
-            return image == null ? null : _mapper.Map<ProductImageDto>(image);
+            return image == null ? null : image.Adapt<ProductImageDto>();
         }
 
         public async Task<ProductImageDto> CreateProductImageAsync(CreateProductImageDto createProductImageDto)
@@ -53,7 +51,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 IsActive = true
             };
             var addedImage = await _productImageRepository.AddAsync(newimage);
-            return _mapper.Map<ProductImageDto>(addedImage);
+            return addedImage.Adapt<ProductImageDto>();
         }
         public async Task UpdateProductImageAsync(Guid id, UpdateProductImageDto updateProductImageDto)
         {
@@ -63,7 +61,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 throw new KeyNotFoundException("Product image not found.");
             }
 
-            _mapper.Map(updateProductImageDto, existingImage);
+            updateProductImageDto.Adapt(existingImage);
             await _productImageRepository.UpdateAsync(existingImage);
         }
         public async Task DeleteProductImageAsync(Guid id, string userId)

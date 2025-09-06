@@ -1,5 +1,7 @@
 using ecommerceAPI.src.EcommerceAPI.Application.Mapping;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
@@ -26,7 +28,8 @@ Console.WriteLine("DefaultConnection => " +
 
 // Add services to the container.
 
-builder.Services.AddAutoMapper(typeof(MappingProfile));
+builder.Services.AddMapster();
+MapsterConfig.RegisterMappings();
 
 builder.Services.AddControllers();
 builder.Services.AddResponseCaching();
