@@ -7,7 +7,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     {
         [Required]
         public Guid ProductId { get; set; }
-        public Product Product { get; set; } = new Product();
+        public Product Product { get; set; } = null!;
         [Required]
         [MaxLength(255)]
         public string ImageUrl { get; set; } = string.Empty;

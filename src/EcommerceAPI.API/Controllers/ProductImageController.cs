@@ -38,7 +38,9 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 return BadRequest("Failed to add product image.");
             }
-            return CreatedAtAction(nameof(GetImagesByProductId), new { id = createdImage.Id }, createdImage);
+
+            Console.WriteLine($"Created ProductId: {createdImage.ProductId}");
+            return CreatedAtAction(nameof(GetImagesByProductId), new { productId = createdImage.ProductId, version = "1.0" }, createdImage);
         }
         [Authorize(Roles = "Seller")]
         [HttpDelete("{id}")]

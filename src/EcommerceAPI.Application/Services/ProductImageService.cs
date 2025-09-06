@@ -49,7 +49,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 ImageUrl = $"/images/{fileName}",
                 IsPrimary = createProductImageDto.IsPrimary,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
+                IsActive = true
             };
             var addedImage = await _productImageRepository.AddAsync(newimage);
             return _mapper.Map<ProductImageDto>(addedImage);
