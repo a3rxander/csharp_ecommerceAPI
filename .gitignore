@@ -7,3 +7,4 @@ obj/
 *.suo
 *.sln.docstates
 project.lock.json
+images/
