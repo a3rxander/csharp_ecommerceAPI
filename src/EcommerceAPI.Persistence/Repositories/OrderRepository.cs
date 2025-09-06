@@ -51,10 +51,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersByUserAsync(Guid userId)
+        public async Task<IEnumerable<Order>> GetOrdersByUserAsync(string UserId)
         {
             return await _db.Orders
-                .Where(o => o.UserId == userId && o.IsActive)
+                .Where(o => o.UserId == UserId && o.IsActive)
                 .Include(o => o.Items)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();

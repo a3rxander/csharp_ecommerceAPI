@@ -29,7 +29,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var orders = await _orderService.GetOrdersByUserAsync(userId);
+            var orders = await _orderService.GetOrdersByUserAsync(userIdValue);
             return Ok(orders);
         }
 
@@ -42,7 +42,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var order = await _orderService.GetOrderByIdAsync(id, userId);
+            var order = await _orderService.GetOrderByIdAsync(id, userIdValue);
             if (order == null)
             {
                 return NotFound();
@@ -59,7 +59,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var createdOrder = await _orderService.CreateOrderAsync(userId, orderDto);
+            var createdOrder = await _orderService.CreateOrderAsync(userIdValue, orderDto);
             return CreatedAtAction(nameof(GetOrderById), new { id = createdOrder.Id }, createdOrder);
         }
 
@@ -72,7 +72,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var updated = await _orderService.UpdateOrderAsync(id, userId, orderDto);
+            var updated = await _orderService.UpdateOrderAsync(id, userIdValue, orderDto);
             if (!updated)
             {
                 return NotFound();
@@ -89,7 +89,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var deleted = await _orderService.DeleteOrderAsync(id, userId);
+            var deleted = await _orderService.DeleteOrderAsync(id, userIdValue);
             if (!deleted)
             {
                 return NotFound();

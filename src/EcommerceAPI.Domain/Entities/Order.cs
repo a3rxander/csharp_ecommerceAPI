@@ -5,7 +5,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     public class Order : BaseEntity
     {
         [Required]
-        public  Guid UserId { get; set;}
+        public  string UserId { get; set;} = string.Empty;
         public  User User { get; set; } = null!;
         
         [Required]
@@ -15,7 +15,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
         [MaxLength(50)]
         public string Status { get; set; } = string.Empty;
         public ICollection<OrderItem> Items { get; set; } = new List<OrderItem>();
-        public Payment Payment { get; set; } = new Payment();
-        public Shipping Shipping { get; set; } = new Shipping();
+        public Payment Payment { get; set; } = null!;
+        public Shipping Shipping { get; set; } = null!;
     }
 }

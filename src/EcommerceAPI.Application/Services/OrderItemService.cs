@@ -20,10 +20,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<OrderItemDto> AddItemAsync(Guid orderId, Guid userId, CreateOrderItemDto orderItemDto)
+        public async Task<OrderItemDto> AddItemAsync(Guid orderId, string UserId, CreateOrderItemDto orderItemDto)
         {
             var order = await _orderRepository.GetByIdAsync(orderId);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 throw new UnauthorizedAccessException();
             }
@@ -49,7 +49,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return _mapper.Map<OrderItemDto>(createdItem);
         }
 
-        public async Task<bool> DeleteItemAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteItemAsync(Guid id, string UserId)
         {
             var item = await _orderItemRepository.GetByIdAsync(id);
             if (item == null)
@@ -57,7 +57,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 return false;
             }
             var order = await _orderRepository.GetByIdAsync(item.OrderId);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return false;
             }
@@ -69,7 +69,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return true;
         }
 
-        public async Task<OrderItemDto?> GetItemByIdAsync(Guid id, Guid userId)
+        public async Task<OrderItemDto?> GetItemByIdAsync(Guid id, string UserId)
         {
             var item = await _orderItemRepository.GetByIdAsync(id);
             if (item == null)
@@ -77,17 +77,17 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 return null;
             }
             var order = await _orderRepository.GetByIdAsync(item.OrderId);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return null;
             }
             return _mapper.Map<OrderItemDto>(item);
         }
 
-        public async Task<IEnumerable<OrderItemDto>> GetItemsByOrderIdAsync(Guid orderId, Guid userId)
+        public async Task<IEnumerable<OrderItemDto>> GetItemsByOrderIdAsync(Guid orderId, string UserId)
         {
             var order = await _orderRepository.GetByIdAsync(orderId);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return Enumerable.Empty<OrderItemDto>();
             }
@@ -95,7 +95,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return _mapper.Map<IEnumerable<OrderItemDto>>(items);
         }
 
-        public async Task<bool> UpdateItemAsync(Guid id, Guid userId, UpdateOrderItemDto orderItemDto)
+        public async Task<bool> UpdateItemAsync(Guid id, string UserId, UpdateOrderItemDto orderItemDto)
         {
             var item = await _orderItemRepository.GetByIdAsync(id);
             if (item == null)
@@ -103,7 +103,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
                 return false;
             }
             var order = await _orderRepository.GetByIdAsync(item.OrderId);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return false;
             }

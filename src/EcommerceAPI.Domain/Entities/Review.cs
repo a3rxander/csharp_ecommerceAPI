@@ -6,10 +6,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     {
         [Required]
         public Guid ProductId { get; set; }
-        public Product Product { get; set; } = new Product();
+        public Product Product { get; set; } = null!;
         [Required]
-        public Guid UserId { get; set; }
-        public User User { get; set; } = new User();
+        public string UserId { get; set; } = string.Empty;
+        public User User { get; set; } = null!;
         [Range(1, 5)]
         public int Rating { get; set; }
         [MaxLength(1000)]

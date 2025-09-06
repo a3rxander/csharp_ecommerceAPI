@@ -6,7 +6,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     {
         [Required]
         public Guid ProductId { get; set; }
-        public Product Product { get; set; } = new Product();
+        public Product Product { get; set; } = null!;
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "Quantity must be positive.")]
         public int Quantity { get; set; }

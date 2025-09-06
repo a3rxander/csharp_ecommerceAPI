@@ -29,7 +29,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var items = await _orderItemService.GetItemsByOrderIdAsync(orderId, userId);
+            var items = await _orderItemService.GetItemsByOrderIdAsync(orderId, userIdValue);
             return Ok(items);
         }
 
@@ -42,7 +42,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var item = await _orderItemService.GetItemByIdAsync(id, userId);
+            var item = await _orderItemService.GetItemByIdAsync(id, userIdValue);
             if (item == null)
             {
                 return NotFound();
@@ -59,7 +59,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var createdItem = await _orderItemService.AddItemAsync(orderId, userId, orderItemDto);
+            var createdItem = await _orderItemService.AddItemAsync(orderId, userIdValue, orderItemDto);
             return CreatedAtAction(nameof(GetItem), new { orderId = orderId, id = createdItem.Id }, createdItem);
         }
 
@@ -72,7 +72,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var updated = await _orderItemService.UpdateItemAsync(id, userId, orderItemDto);
+            var updated = await _orderItemService.UpdateItemAsync(id, userIdValue, orderItemDto);
             if (!updated)
             {
                 return NotFound();
@@ -89,7 +89,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return Unauthorized("Invalid token.");
             }
 
-            var deleted = await _orderItemService.DeleteItemAsync(id, userId);
+            var deleted = await _orderItemService.DeleteItemAsync(id, userIdValue);
             if (!deleted)
             {
                 return NotFound();

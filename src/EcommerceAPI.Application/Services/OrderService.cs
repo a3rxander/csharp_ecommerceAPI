@@ -18,12 +18,12 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             _mapper = mapper;
         }
 
-        public async Task<OrderDto> CreateOrderAsync(Guid userId, CreateOrderDto orderDto)
+        public async Task<OrderDto> CreateOrderAsync(string UserId, CreateOrderDto orderDto)
         {
             var order = new Order
             {
                 Id = Guid.NewGuid(),
-                UserId = userId,
+                UserId = UserId,
                 OrderDate = DateTime.UtcNow,
                 Status = "Pending",
                 IsActive = true,
@@ -45,10 +45,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return _mapper.Map<OrderDto>(createdOrder);
         }
 
-        public async Task<bool> DeleteOrderAsync(Guid id, Guid userId)
+        public async Task<bool> DeleteOrderAsync(Guid id, string UserId)
         {
             var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return false;
             }
@@ -56,26 +56,26 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return true;
         }
 
-        public async Task<OrderDto?> GetOrderByIdAsync(Guid id, Guid userId)
+        public async Task<OrderDto?> GetOrderByIdAsync(Guid id, string UserId)
         {
             var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return null;
             }
             return _mapper.Map<OrderDto>(order);
         }
 
-        public async Task<IEnumerable<OrderDto>> GetOrdersByUserAsync(Guid userId)
+        public async Task<IEnumerable<OrderDto>> GetOrdersByUserAsync(string UserId)
         {
-            var orders = await _orderRepository.GetOrdersByUserAsync(userId);
+            var orders = await _orderRepository.GetOrdersByUserAsync(UserId);
             return _mapper.Map<IEnumerable<OrderDto>>(orders);
         }
 
-        public async Task<bool> UpdateOrderAsync(Guid id, Guid userId, UpdateOrderDto orderDto)
+        public async Task<bool> UpdateOrderAsync(Guid id, string UserId, UpdateOrderDto orderDto)
         {
             var order = await _orderRepository.GetByIdAsync(id);
-            if (order == null || order.UserId != userId)
+            if (order == null || order.UserId != UserId)
             {
                 return false;
             }

@@ -6,7 +6,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     {
         [Required]
         public Guid OrderId { get; set; }
-        public Order Order { get; set; } = new Order();
+        public Order Order { get; set; } = null!;
         [Required]
         public decimal Amount { get; set; }
         public DateTime PaymentDate { get; set; }

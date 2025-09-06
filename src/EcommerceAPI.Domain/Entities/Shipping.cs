@@ -6,7 +6,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Domain.Entities
     {
         [Required]
         public Guid OrderId { get; set; }
-        public Order Order { get; set; } = new Order();
+        public Order Order { get; set; } =null!;
         [Required]
         [MaxLength(200)]
         public string Address { get; set; } = string.Empty;
