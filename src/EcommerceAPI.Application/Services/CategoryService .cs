@@ -1,4 +1,4 @@
-﻿using AutoMapper;
+using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
@@ -9,33 +9,33 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
     public class CategoryService : ICategoryService
     {
         private readonly ICategoryRepository _categoryRepository;
-        private readonly IMapper _mapper;
-        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
+
+        public CategoryService(ICategoryRepository categoryRepository)
         {
             _categoryRepository = categoryRepository;
-            _mapper = mapper;
         }
 
         public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
         {
             var categories = await _categoryRepository.GetAllAsync();
-            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
+            return categories.Adapt<IEnumerable<CategoryDto>>();
         }
+
         public async Task<CategoryDto?> GetCategoryByIdAsync(Guid id)
         {
             var category = await _categoryRepository.GetByIdAsync(id);
-            return category == null ? null : _mapper.Map<CategoryDto>(category);
+            return category == null ? null : category.Adapt<CategoryDto>();
         }
 
         public async Task<CategoryDto> CreateCategoryAsync(CreateCategoryDto createCategoryDto)
         {
-            var category = _mapper.Map<Category>(createCategoryDto);
+            var category = createCategoryDto.Adapt<Category>();
             category.Id = Guid.NewGuid();
             category.CreatedAt = DateTime.UtcNow;
             category.UpdatedAt = DateTime.UtcNow;
             category.IsActive = true;
             var createdCategory = await _categoryRepository.AddAsync(category);
-            return _mapper.Map<CategoryDto>(createdCategory);
+            return createdCategory.Adapt<CategoryDto>();
         }
 
         public async Task<bool> UpdateCategoryAsync(Guid id, UpdateCategoryDto updateCategoryDto)
@@ -45,11 +45,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             {
                 return false;
             }
-            var updatedCategory = _mapper.Map(updateCategoryDto, existingCategory);
+
+            var updatedCategory = updateCategoryDto.Adapt(existingCategory);
             updatedCategory.UpdatedAt = DateTime.UtcNow;
             await _categoryRepository.UpdateAsync(updatedCategory);
             return true;
         }
+
         public async Task<bool> DeleteCategoryAsync(Guid id)
         {
             if (!await _categoryRepository.ExistsAsync(id))
@@ -61,3 +63,4 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         }
     }
 }
+

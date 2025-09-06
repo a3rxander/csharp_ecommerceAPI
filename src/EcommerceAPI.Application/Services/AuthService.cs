@@ -1,8 +1,7 @@
-using AutoMapper;
+using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
-using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
 using Microsoft.AspNetCore.Identity;
 using ecommerceAPI.src.EcommerceAPI.Domain.Constants;
 using Microsoft.Extensions.Configuration;
@@ -17,13 +16,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
     public class AuthService : IAuthService
     {
-        private readonly IMapper _mapper; 
         private readonly UserManager<User> _userManager;
         private readonly IConfiguration _configuration;
 
-        public AuthService(IMapper mapper, IUserRepository userRepository, IConfiguration configuration, UserManager<User> userManager)
+        public AuthService(IConfiguration configuration, UserManager<User> userManager)
         {
-            _mapper = mapper; 
             _configuration = configuration;
             _userManager = userManager;
         }
@@ -36,7 +33,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             }
             
             var token = GenerateJwtToken(user);
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = user.Adapt<UserDto>();
             return new AuthResponseDto
             {
                 Token = token,
@@ -66,7 +63,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             {
                 return null;
             }
-            var user = _mapper.Map<User>(registerDto); 
+            var user = registerDto.Adapt<User>();
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow; 
             var result = await _userManager.CreateAsync(user, registerDto.Password);
@@ -74,7 +71,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             {
                 return null;
             }
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = user.Adapt<UserDto>();
             var token = GenerateJwtToken(user);
             return new AuthResponseDto
             {
@@ -100,7 +97,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
             if (user == null) return null;
-            return _mapper.Map<UserDto>(user);
+            return user.Adapt<UserDto>();
         }
 
         private string GenerateJwtToken(User user)
