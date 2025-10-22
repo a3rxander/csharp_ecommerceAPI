@@ -37,7 +37,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(category);
         }
-        [Authorize(Roles = "Seller")]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<ActionResult<CategoryDto>> CreateCategory([FromBody] CreateCategoryDto createCategoryDto)
         {
@@ -49,6 +49,7 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             return CreatedAtAction(nameof(GetCategoryById), new { id = createdCategory.Id, version = "1.0" }, createdCategory);
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPut("{id:guid}")]
         public async Task<IActionResult> UpdateCategory(Guid id, [FromBody] UpdateCategoryDto updateCategoryDto)
         {
@@ -63,6 +64,9 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return NoContent();
         }
+
+        
+        [Authorize(Roles = "Admin")]
         [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteCategory(Guid id)
         {
