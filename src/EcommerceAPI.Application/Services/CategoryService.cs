@@ -44,8 +44,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             if (existingCategory == null || !existingCategory.IsActive)
             {
                 return false;
-            }
-
+            } 
             var updatedCategory = updateCategoryDto.Adapt(existingCategory);
             updatedCategory.UpdatedAt = DateTime.UtcNow;
             await _categoryRepository.UpdateAsync(updatedCategory);
