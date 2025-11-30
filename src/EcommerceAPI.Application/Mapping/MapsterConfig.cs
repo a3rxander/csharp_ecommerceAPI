@@ -15,9 +15,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
 
             // Product mappings
             TypeAdapterConfig<Product, ProductDto>.NewConfig()
-                .Map(dest => dest.CategoryName, src => src.Category.Name)
-                .Map(dest => dest.CategoryDescription, src => src.Category.Description)
-                .Map(dest => dest.SellerName, src => src.Seller.FirstName + " " + src.Seller.LastName)
+                .Map(dest => dest.CategoryName, src => src.Category == null ? string.Empty : src.Category.Name)
+                .Map(dest => dest.CategoryDescription,
+                    src => src.Category == null ? string.Empty : src.Category.Description)
+                .Map(dest => dest.SellerName,
+                    src => src.Seller != null ? $"{src.Seller.FirstName} {src.Seller.LastName}".Trim() : string.Empty)
                 .TwoWays();
 
             TypeAdapterConfig<CreateProductDto, Product>.NewConfig()
@@ -39,11 +41,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
 
             TypeAdapterConfig<RegisterUserDto, User>.NewConfig()
                 .Map(dest => dest.UserName, src => src.Username)
-                .Ignore(dest => dest.PasswordHash)
+                .Ignore(dest => dest.PasswordHash!)
                 .TwoWays();
 
             TypeAdapterConfig<UpdateUserDto, User>.NewConfig()
-                .Ignore(dest => dest.PasswordHash)
+                .Ignore(dest => dest.PasswordHash!)
                 .TwoWays();
 
             // Order mappings
