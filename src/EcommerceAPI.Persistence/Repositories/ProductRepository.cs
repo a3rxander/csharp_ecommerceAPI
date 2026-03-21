@@ -2,6 +2,7 @@
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
 using Microsoft.EntityFrameworkCore;
+using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 
 namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
 {
@@ -34,14 +35,41 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 .AnyAsync(p => p.Id == id && p.IsActive);
         }
 
-        public async Task<IEnumerable<Product>> GetAllAsync()
-        {
-            return await _db.Products
-                .Where(p => p.IsActive)
-                .Include(p => p.Category) // Eager loading of Category
-                .Include(p => p.Seller) // Eager loading of Seller
+        public async Task<(IEnumerable<Product> Products, int Total)> GetAllAsync(ProductQueryParams queryParams)
+        { 
+
+            var query =  _db.Products.Where(p => p.IsActive); 
+            
+            if (!string.IsNullOrWhiteSpace(queryParams.Search))
+            {
+                query = query.Where(p => p.Name.Contains(queryParams.Search));
+            }
+
+            if (queryParams.CategoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryId == queryParams.CategoryId);
+            }
+
+            if (queryParams.MinPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= queryParams.MinPrice);
+            }
+
+            if (queryParams.MaxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= queryParams.MaxPrice);
+            }
+
+            var total = await query.CountAsync();   
+
+
+            var products = await query 
                 .OrderBy(p => p.Name)
+                .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+                .Take(queryParams.PageSize) 
                 .ToListAsync();
+
+            return (products, total);
         }
 
         public async Task<Product?> GetByIdAsync(Guid id)

@@ -17,10 +17,18 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable<ProductDto>> GetAllProductsAsync()
+        public async Task<PagedResultDto<ProductDto>> GetAllProductsAsync(ProductQueryParams queryParams)
         {
-            var products = await _productRepository.GetAllAsync();
-            return products.Adapt<IEnumerable<ProductDto>>();
+            queryParams.Normalize();
+            var (products, total) = await _productRepository.GetAllAsync(queryParams);
+
+            return new PagedResultDto<ProductDto>
+            {
+                Items = products.Adapt<List<ProductDto>>(),
+                TotalCount = total,
+                PageNumber = queryParams.PageNumber,
+                PageSize = queryParams.PageSize
+            };
         }
 
         public async Task<ProductDto?> GetProductByIdAsync(Guid id)

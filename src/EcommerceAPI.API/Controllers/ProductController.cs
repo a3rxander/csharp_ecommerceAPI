@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using Asp.Versioning;
+using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 
 namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 {
@@ -18,9 +19,9 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             _productService = productService;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts([FromQuery]ProductQueryParams queryParams)
         {
-            var products = await _productService.GetAllProductsAsync();
+            var products = await _productService.GetAllProductsAsync(queryParams);
             return Ok(products);
         }
         [HttpGet("{id}")]

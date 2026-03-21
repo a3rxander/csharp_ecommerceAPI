@@ -4,7 +4,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Interfaces
 {
     public interface IProductService
     {
-        Task<IEnumerable<ProductDto>> GetAllProductsAsync();
+        Task<PagedResultDto<ProductDto>> GetAllProductsAsync(ProductQueryParams queryParams);
         Task<ProductDto?> GetProductByIdAsync(Guid id);
         Task<ProductDto> CreateProductAsync(CreateProductDto productDto, string sellerId);
         Task<bool> UpdateProductAsync(Guid id, UpdateProductDto productDto, string sellerId);
