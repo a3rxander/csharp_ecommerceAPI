@@ -3,7 +3,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.DTOs
     public class ProductQueryParams
     {
         public string? Search { get; set; }
-        public Guid? CategoryId { get; set; }
+        public List<Guid>? CategoryIds { get; set; }
+        public string? CategoryNames { get; set; }
         public decimal? MinPrice { get; set; }
         public decimal? MaxPrice { get; set; }
         public int PageNumber { get; set; } = 1;

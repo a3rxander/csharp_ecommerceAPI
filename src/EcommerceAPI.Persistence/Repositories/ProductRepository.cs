@@ -45,9 +45,20 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 query = query.Where(p => p.Name.Contains(queryParams.Search));
             }
 
-            if (queryParams.CategoryId.HasValue)
+            if (queryParams.CategoryIds != null && queryParams.CategoryIds.Any())
             {
-                query = query.Where(p => p.CategoryId == queryParams.CategoryId);
+                query = query.Where(p => queryParams.CategoryIds.Contains(p.CategoryId));
+            }
+
+            if(queryParams.CategoryNames != null)
+            {
+                var categoryNames = queryParams.CategoryNames.Split(',').Select(c => c.Trim()).ToList();
+                //get category ids from category names
+                var categoryIds = await _db.Categories
+                    .Where(c => categoryNames.Contains(c.Name))
+                    .Select(c => c.Id)
+                    .ToListAsync();
+                query = query.Where(p => categoryIds.Contains(p.CategoryId));
             }
 
             if (queryParams.MinPrice.HasValue)
@@ -64,6 +75,9 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
 
 
             var products = await query 
+                .Include(p => p.Category) // Eager loading of Category
+                .Include(p => p.Seller) // Eager loading of Seller
+                .Include(p => p.ProductImages.Where(pi => pi.IsPrimary)) // Eager loading of primary ProductImage
                 .OrderBy(p => p.Name)
                 .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
                 .Take(queryParams.PageSize) 
@@ -78,10 +92,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
                 .Where(p => p.Id == id && p.IsActive)
                 .Include(p => p.Category) // Eager loading of Category
                 .Include(p => p.Seller) // Eager loading of Seller
-                .FirstOrDefaultAsync();
-
-                Console.WriteLine($"Seller loaded? {product?.Seller != null}");
-                Console.WriteLine($"SellerName DB: {product?.Seller?.FirstName} {product?.Seller?.LastName}");
+                .Include(p => p.ProductImages.Where(pi => pi.IsPrimary)) // Eager loading of primary ProductImage
+                .FirstOrDefaultAsync(); 
 
             return product; 
             

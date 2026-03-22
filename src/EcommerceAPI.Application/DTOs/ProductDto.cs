@@ -8,10 +8,10 @@
         public decimal Price { get; set; }
         public int Stock { get; set; }
         public Guid CategoryId { get; set; }
-        public string CategoryName { get; set; } = string.Empty;
-        public string CategoryDescription { get; set; } = string.Empty;
+        public CategoryDto? Category { get; set; }
         public string SellerId { get; set; } = string.Empty;
         public string SellerName { get; set; } = string.Empty;
+        public ProductImageDto? PrimaryImage { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 

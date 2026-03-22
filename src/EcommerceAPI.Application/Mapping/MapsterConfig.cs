@@ -15,9 +15,10 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
 
             // Product mappings
             TypeAdapterConfig<Product, ProductDto>.NewConfig()
-                .Map(dest => dest.CategoryName, src => src.Category == null ? string.Empty : src.Category.Name)
-                .Map(dest => dest.CategoryDescription,
-                    src => src.Category == null ? string.Empty : src.Category.Description)
+                .Map(dest => dest.Category, 
+                src => src.Category)
+                .Map(dest => dest.PrimaryImage,
+                 src => src.ProductImages.FirstOrDefault(pi => pi.IsPrimary))
                 .Map(dest => dest.SellerName,
                     src => src.Seller != null ? $"{src.Seller.FirstName} {src.Seller.LastName}".Trim() : string.Empty)
                 .TwoWays();
