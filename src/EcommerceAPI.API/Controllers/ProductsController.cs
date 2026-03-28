@@ -83,9 +83,25 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return NoContent();
         }
+        [Authorize(Roles = "Seller")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+            var existingProduct = await _productService.GetProductByIdAsync(id);
+            if (existingProduct == null)
+            {
+                return NotFound("Product not found.");
+            }
+            if (existingProduct.SellerId != userIdValue)
+            {
+                return Forbid();
+            }
+
             var deleted = await _productService.DeleteProductAsync(id);
             if (!deleted)
             {
@@ -113,9 +129,26 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
             return Ok(products);
         }
+        [Authorize (Roles = "Seller")]
         [HttpPut("{id}/stock")]
         public async Task<IActionResult> UpdateProductStock(Guid id, [FromBody] UpdateProductStockDto updateProductStockDto)
         {
+           var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            } 
+
+            var existingProduct = await _productService.GetProductByIdAsync(id);
+            if (existingProduct == null)
+            {
+                return NotFound("Product not found.");
+            }
+            if (existingProduct.SellerId != userIdValue)
+            {
+                return Forbid();
+            }
+
             if (updateProductStockDto == null)
             {
                 return BadRequest("Stock data is required.");
@@ -126,6 +159,23 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return NotFound("Product not found or stock update failed.");
             }
             return NoContent();
+        }
+        
+        [Authorize(Roles = "Seller")]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMyProducts()
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
+            {
+                return Unauthorized("Invalid token.");
+            }
+            var products = await _productService.GetProductsBySellerAsync(userIdValue);
+            if (products == null || !products.Any())
+            {
+                return NotFound("No products found for this seller.");
+            }
+            return Ok(products); 
         }
     }
 }
