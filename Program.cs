@@ -157,12 +157,12 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "Hola desde Ecommerce API en Docker con Swagger");
 
+app.UseStaticFiles(); 
 app.UseCors("AllowAll");
 app.UseHttpsRedirection();
 app.UseResponseCaching();
 app.UseAuthentication();
-app.UseAuthorization();
-
+app.UseAuthorization(); 
 app.MapControllers();
 
 app.Run();
