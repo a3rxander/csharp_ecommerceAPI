@@ -71,6 +71,44 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
             TypeAdapterConfig<UpdateProductImageDto, ProductImage>.NewConfig()
                 .Ignore(dest => dest.Product)
                 .TwoWays();
+
+            // Payment mappings
+            TypeAdapterConfig<Payment, PaymentDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<CreatePaymentDto, Payment>.NewConfig()
+                .Ignore(dest => dest.Order)
+                .TwoWays();
+            TypeAdapterConfig<UpdatePaymentDto, Payment>.NewConfig()
+                .Ignore(dest => dest.Order)
+                .TwoWays();
+
+            // Shipping mappings
+            TypeAdapterConfig<Shipping, ShippingDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<CreateShippingDto, Shipping>.NewConfig()
+                .Ignore(dest => dest.Order)
+                .TwoWays();
+            TypeAdapterConfig<UpdateShippingDto, Shipping>.NewConfig()
+                .Ignore(dest => dest.Order)
+                .TwoWays();
+
+            // Review mappings
+            TypeAdapterConfig<Review, ReviewDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<CreateReviewDto, Review>.NewConfig()
+                .Ignore(dest => dest.Product)
+                .Ignore(dest => dest.User)
+                .TwoWays();
+            TypeAdapterConfig<UpdateReviewDto, Review>.NewConfig()
+                .Ignore(dest => dest.Product)
+                .Ignore(dest => dest.User)
+                .TwoWays();
+
+            // StockMovement mappings
+            TypeAdapterConfig<StockMovement, StockMovementDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<CreateStockMovementDto, StockMovement>.NewConfig()
+                .Ignore(dest => dest.Product)
+                .TwoWays();
+            TypeAdapterConfig<UpdateStockMovementDto, StockMovement>.NewConfig()
+                .Ignore(dest => dest.Product)
+                .TwoWays();
         }
     }
 }
