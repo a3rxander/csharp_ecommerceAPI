@@ -54,6 +54,20 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         }
 
         [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<IEnumerable<ReviewDto>>> GetMyReviews()
+        {
+            var userIdValue = GetCurrentUserId();
+            if (userIdValue == null)
+            {
+                return Unauthorized("Invalid token.");
+            }
+
+            var reviews = await _reviewService.GetReviewsByUserAsync(userIdValue);
+            return Ok(reviews);
+        }
+
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<ReviewDto>> CreateReview([FromBody] CreateReviewDto reviewDto)
         {
@@ -62,8 +76,8 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return BadRequest("Review data is required.");
             }
 
-            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userIdValue == null || !Guid.TryParse(userIdValue, out _))
+            var userIdValue = GetCurrentUserId();
+            if (userIdValue == null)
             {
                 return Unauthorized("Invalid token.");
             }
@@ -74,6 +88,10 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             {
                 var createdReview = await _reviewService.CreateReviewAsync(reviewDto);
                 return CreatedAtAction(nameof(GetReviewById), new { id = createdReview.Id, version = "1.0" }, createdReview);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return StatusCode(403, ex.Message);
             }
             catch (ArgumentException ex)
             {
@@ -96,19 +114,31 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return NotFound();
             }
 
-            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdValue = GetCurrentUserId();
+            if (userIdValue == null)
+            {
+                return Unauthorized("Invalid token.");
+            }
+
             if (!User.IsInRole("Admin") && existingReview.UserId != userIdValue)
             {
                 return Forbid();
             }
 
-            var updated = await _reviewService.UpdateReviewAsync(id, reviewDto);
-            if (!updated)
+            try
             {
-                return NotFound();
-            }
+                var updated = await _reviewService.UpdateReviewAsync(id, reviewDto);
+                if (!updated)
+                {
+                    return NotFound();
+                }
 
-            return NoContent();
+                return NoContent();
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [Authorize]
@@ -121,7 +151,12 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
                 return NotFound();
             }
 
-            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userIdValue = GetCurrentUserId();
+            if (userIdValue == null)
+            {
+                return Unauthorized("Invalid token.");
+            }
+
             if (!User.IsInRole("Admin") && existingReview.UserId != userIdValue)
             {
                 return Forbid();
@@ -134,6 +169,12 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             }
 
             return NoContent();
+        }
+
+        private string? GetCurrentUserId()
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return Guid.TryParse(userIdValue, out _) ? userIdValue : null;
         }
     }
 }

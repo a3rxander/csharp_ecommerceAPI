@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using Asp.Versioning;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
@@ -8,7 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [Route("api/v{version:apiVersion}/[controller]")]
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
@@ -24,16 +26,24 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
 
             if (registerDto == null)
             {
-                return BadRequest("Invalid user data.");
+                return BadRequest(new { message = "Invalid user data." });
             }
 
-            var authResponse = await _authService.RegisterAsync(registerDto);
-            if (authResponse == null)
+            var authResult = await _authService.RegisterAsync(registerDto);
+            if (!authResult.Succeeded)
             {
-                return Conflict("Got error while registering user.");
+                var hasDuplicateError = authResult.Errors.Any(error =>
+                    error.Contains("already exists", StringComparison.OrdinalIgnoreCase));
+                var statusCode = hasDuplicateError ? 409 : 400;
+
+                return StatusCode(statusCode, new
+                {
+                    message = "Could not register user.",
+                    errors = authResult.Errors
+                });
             }
 
-            return Ok(authResponse);
+            return Ok(authResult.AuthResponse);
         }
 
         [HttpPost("login")]
@@ -41,13 +51,13 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         {
             if (loginDto == null)
             {
-                return BadRequest("Invalid login data.");
+                return BadRequest(new { message = "Invalid login data." });
             }
 
             var authResponse = await _authService.LoginAsync(loginDto);
             if (authResponse == null)
             {
-                return Unauthorized("Invalid username or password.");
+                return Unauthorized(new { message = "Invalid username or password." });
             }
 
             return Ok(authResponse);
@@ -69,12 +79,12 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
             Console.WriteLine("User ID from token: " + userIdValue);
             if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
             {
-                return Unauthorized("Invalid token.");
+                return Unauthorized(new { message = "Invalid token." });
             }
             var userDto = await _authService.GetUserByIdAsync(userId);
             if (userDto == null)
             {
-                return NotFound("User not found.");
+                return NotFound(new { message = "User not found." });
             }   
             return Ok(userDto);
         }
@@ -85,18 +95,18 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         {
             if (updateDto == null)
             {
-                return BadRequest("Invalid user data.");
+                return BadRequest(new { message = "Invalid user data." });
             }
 
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
             {
-                return Unauthorized("Invalid token.");
+                return Unauthorized(new { message = "Invalid token." });
             }
             var result = await _authService.UpdateUserAsync(userId, updateDto);
             if (!result)
             {
-                return NotFound("User not found.");
+                return NotFound(new { message = "User not found." });
             }
             return NoContent();
         }

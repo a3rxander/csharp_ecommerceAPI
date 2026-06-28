@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
 
@@ -11,9 +12,11 @@ using ecommerceAPI.src.EcommerceAPI.Persistence.Data;
 namespace ecommerceAPI.Migrations
 {
     [DbContext(typeof(EcommerceDbContext))]
-    partial class EcommerceDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260619013600_AddReviewsAndStockMovements")]
+    partial class AddReviewsAndStockMovements
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -153,74 +156,6 @@ namespace ecommerceAPI.Migrations
                     b.HasKey("UserId", "LoginProvider", "Name");
 
                     b.ToTable("AspNetUserTokens", (string)null);
-                });
-
-            modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Cart", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique()
-                        .HasFilter("[IsActive] = 1");
-
-                    b.ToTable("Carts");
-                });
-
-            modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.CartItem", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CartId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("ProductId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProductId");
-
-                    b.HasIndex("CartId", "ProductId")
-                        .IsUnique();
-
-                    b.ToTable("CartItems");
                 });
 
             modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Category", b =>
@@ -741,36 +676,6 @@ namespace ecommerceAPI.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Cart", b =>
-                {
-                    b.HasOne("ecommerceAPI.src.EcommerceAPI.Domain.Entities.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.CartItem", b =>
-                {
-                    b.HasOne("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Cart", "Cart")
-                        .WithMany("Items")
-                        .HasForeignKey("CartId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Cart");
-
-                    b.Navigation("Product");
-                });
-
             modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Order", b =>
                 {
                     b.HasOne("ecommerceAPI.src.EcommerceAPI.Domain.Entities.User", "User")
@@ -881,11 +786,6 @@ namespace ecommerceAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Product");
-                });
-
-            modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Cart", b =>
-                {
-                    b.Navigation("Items");
                 });
 
             modelBuilder.Entity("ecommerceAPI.src.EcommerceAPI.Domain.Entities.Order", b =>

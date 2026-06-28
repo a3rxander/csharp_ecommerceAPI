@@ -3,16 +3,21 @@ using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 {
     public class ProductImageService : IProductImageService
     {
         private readonly IProductImageRepository _productImageRepository;
+        private readonly IWebHostEnvironment _environment;
 
-        public ProductImageService(IProductImageRepository productImageRepository)
+        public ProductImageService(
+            IProductImageRepository productImageRepository,
+            IWebHostEnvironment environment)
         {
             _productImageRepository = productImageRepository;
+            _environment = environment;
         }
 
         public async Task<IEnumerable<ProductImageDto>> GetImagesByProductIdAsync(Guid productId)
@@ -29,7 +34,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public async Task<ProductImageDto> CreateProductImageAsync(CreateProductImageDto createProductImageDto)
         {
-            var ImagePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "images");
+            var webRootPath = _environment.WebRootPath ?? Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            var ImagePath = Path.Combine(webRootPath, "images");
             if (!Directory.Exists(ImagePath))
             {
                 Directory.CreateDirectory(ImagePath);

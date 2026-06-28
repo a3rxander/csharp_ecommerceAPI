@@ -91,7 +91,13 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
                 .TwoWays();
 
             // Review mappings
-            TypeAdapterConfig<Review, ReviewDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<Review, ReviewDto>.NewConfig()
+                .Map(dest => dest.ReviewerName,
+                    src => src.User != null
+                        ? (!string.IsNullOrWhiteSpace($"{src.User.FirstName} {src.User.LastName}".Trim())
+                            ? $"{src.User.FirstName} {src.User.LastName}".Trim()
+                            : src.User.UserName ?? string.Empty)
+                        : string.Empty);
             TypeAdapterConfig<CreateReviewDto, Review>.NewConfig()
                 .Ignore(dest => dest.Product)
                 .Ignore(dest => dest.User)
@@ -107,6 +113,18 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Mapping
                 .Ignore(dest => dest.Product)
                 .TwoWays();
             TypeAdapterConfig<UpdateStockMovementDto, StockMovement>.NewConfig()
+                .Ignore(dest => dest.Product)
+                .TwoWays();
+
+            // Cart mappings
+            TypeAdapterConfig<Cart, CartDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<CartItem, CartItemDto>.NewConfig().TwoWays();
+            TypeAdapterConfig<AddCartItemDto, CartItem>.NewConfig()
+                .Ignore(dest => dest.Cart)
+                .Ignore(dest => dest.Product)
+                .TwoWays();
+            TypeAdapterConfig<UpdateCartItemDto, CartItem>.NewConfig()
+                .Ignore(dest => dest.Cart)
                 .Ignore(dest => dest.Product)
                 .TwoWays();
         }

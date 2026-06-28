@@ -38,4 +38,11 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.DTOs
         public string Token { get; set; } = string.Empty;
         public UserDto User { get; set; } = new UserDto();
     }
+
+    public class AuthResultDto
+    {
+        public bool Succeeded { get; set; }
+        public AuthResponseDto? AuthResponse { get; set; }
+        public List<string> Errors { get; set; } = new List<string>();
+    }
 }

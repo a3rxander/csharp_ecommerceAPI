@@ -2,44 +2,81 @@ using Mapster;
 using ecommerceAPI.src.EcommerceAPI.Application.DTOs;
 using ecommerceAPI.src.EcommerceAPI.Application.Interfaces;
 using ecommerceAPI.src.EcommerceAPI.Domain.Entities;
+using ecommerceAPI.src.EcommerceAPI.Domain.Enums;
 using ecommerceAPI.src.EcommerceAPI.Domain.Repositories;
-using System.Linq;
 
 namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 {
     public class OrderService : IOrderService
     {
         private readonly IOrderRepository _orderRepository;
+        private readonly ICartRepository _cartRepository;
 
-        public OrderService(IOrderRepository orderRepository)
+        public OrderService(IOrderRepository orderRepository, ICartRepository cartRepository)
         {
             _orderRepository = orderRepository;
+            _cartRepository = cartRepository;
         }
 
         public async Task<OrderDto> CreateOrderAsync(string UserId, CreateOrderDto orderDto)
         {
+            if (string.IsNullOrWhiteSpace(orderDto.ShippingAddress))
+            {
+                throw new ArgumentException("Shipping address is required.");
+            }
+
+            var cart = await _cartRepository.GetByUserIdAsync(UserId);
+            var cartItems = cart?.Items
+                .Where(item => item.IsActive)
+                .ToList() ?? new List<CartItem>();
+
+            if (cart == null || cartItems.Count == 0)
+            {
+                throw new ArgumentException("Cart is empty.");
+            }
+
+            foreach (var item in cartItems)
+            {
+                if (item.Quantity > item.Product.Stock)
+                {
+                    throw new ArgumentException($"Requested quantity for {item.Product.Name} exceeds available stock.");
+                }
+            }
+
+            var now = DateTime.UtcNow;
             var order = new Order
             {
                 Id = Guid.NewGuid(),
                 UserId = UserId,
-                OrderDate = DateTime.UtcNow,
-                Status = "Pending",
+                OrderDate = now,
+                Status = OrderStatus.Pending,
                 IsActive = true,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-                Items = orderDto.Items.Select(item => new OrderItem
+                CreatedAt = now,
+                UpdatedAt = now,
+                Items = cartItems.Select(item => new OrderItem
                 {
                     Id = Guid.NewGuid(),
                     ProductId = item.ProductId,
                     Quantity = item.Quantity,
-                    UnitPrice = item.UnitPrice,
+                    UnitPrice = item.Product.Price,
                     IsActive = true,
-                    CreatedAt = DateTime.UtcNow,
-                    UpdatedAt = DateTime.UtcNow
-                }).ToList()
+                    CreatedAt = now,
+                    UpdatedAt = now
+                }).ToList(),
+                Shipping = new Shipping
+                {
+                    Id = Guid.NewGuid(),
+                    Address = orderDto.ShippingAddress.Trim(),
+                    Status = "Pending",
+                    IsActive = true,
+                    CreatedAt = now,
+                    UpdatedAt = now
+                }
             };
             order.TotalAmount = order.Items.Sum(i => i.UnitPrice * i.Quantity);
             var createdOrder = await _orderRepository.AddAsync(order);
+            await _cartRepository.ClearItemsAsync(cart.Id);
+
             return createdOrder.Adapt<OrderDto>();
         }
 

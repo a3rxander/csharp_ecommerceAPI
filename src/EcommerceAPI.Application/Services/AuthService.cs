@@ -27,7 +27,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         public async Task<AuthResponseDto?> LoginAsync(LoginUserDto loginDto)
         {
             var user = await _userManager.FindByNameAsync(loginDto.Username);
-            if (user == null || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
+            if (user == null || !user.IsActive || !await _userManager.CheckPasswordAsync(user, loginDto.Password))
             {
                 return null;
             }
@@ -47,43 +47,80 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             return Task.CompletedTask;
         }
 
-        public async Task<AuthResponseDto?> RegisterAsync(RegisterUserDto registerDto)
+        public async Task<AuthResultDto> RegisterAsync(RegisterUserDto registerDto)
         {
             var ifExistUsername = await _userManager.FindByNameAsync(registerDto.Username);
-            if (ifExistUsername != null) return null;
-            if (string.IsNullOrEmpty(registerDto.Email))
+            if (ifExistUsername != null)
             {
-                return null;
+                return new AuthResultDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "Username already exists." }
+                };
             }
+
+            if (string.IsNullOrWhiteSpace(registerDto.Email))
+            {
+                return new AuthResultDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "Email is required." }
+                };
+            }
+
             var ifExistEmail = await _userManager.FindByEmailAsync(registerDto.Email);
-            if (ifExistEmail != null) return null;
+            if (ifExistEmail != null)
+            {
+                return new AuthResultDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "Email already exists." }
+                };
+            }
 
             //valid Role selection got error
             if (registerDto.Role != UserRoles.Customer && registerDto.Role != UserRoles.Seller)
             {
-                return null;
+                return new AuthResultDto
+                {
+                    Succeeded = false,
+                    Errors = new List<string> { "Role must be Customer or Seller." }
+                };
             }
+
             var user = registerDto.Adapt<User>();
             user.CreatedAt = DateTime.UtcNow;
-            user.UpdatedAt = DateTime.UtcNow; 
+            user.UpdatedAt = DateTime.UtcNow;
+            user.IsActive = true;
+
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded)
             {
-                return null;
+                return new AuthResultDto
+                {
+                    Succeeded = false,
+                    Errors = result.Errors.Select(error => error.Description).ToList()
+                };
             }
+
             var userDto = user.Adapt<UserDto>();
             var token = GenerateJwtToken(user);
-            return new AuthResponseDto
+            return new AuthResultDto
             {
-                Token = token,
-                User = userDto
+                Succeeded = true,
+                AuthResponse = new AuthResponseDto
+                {
+                    Token = token,
+                    User = userDto
+                }
             };
         }
 
         public async Task<bool> UpdateUserAsync(Guid id, UpdateUserDto updateDto)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) return false;
+            if (user == null || !user.IsActive) return false;
+
             user.FirstName = updateDto.FirstName ?? user.FirstName;
             user.LastName = updateDto.LastName ?? user.LastName;
             user.Email = updateDto.Email ?? user.Email;
@@ -96,7 +133,8 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
         public async Task<UserDto?> GetUserByIdAsync(Guid id)
         {
             var user = await _userManager.FindByIdAsync(id.ToString());
-            if (user == null) return null;
+            if (user == null || !user.IsActive) return null;
+
             return user.Adapt<UserDto>();
         }
 

@@ -39,6 +39,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
             return await _db.Orders
                 .Where(o => o.IsActive)
                 .Include(o => o.Items)
+                .Include(o => o.Shipping)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
         }
@@ -48,6 +49,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
             return await _db.Orders
                 .Where(o => o.Id == id && o.IsActive)
                 .Include(o => o.Items)
+                .Include(o => o.Shipping)
                 .FirstOrDefaultAsync();
         }
 
@@ -56,6 +58,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
             return await _db.Orders
                 .Where(o => o.UserId == UserId && o.IsActive)
                 .Include(o => o.Items)
+                .Include(o => o.Shipping)
                 .OrderByDescending(o => o.OrderDate)
                 .ToListAsync();
         }

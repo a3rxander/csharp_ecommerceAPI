@@ -12,6 +12,7 @@ using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.Json.Serialization;
 using Asp.Versioning;
 using ecommerceAPI.src.EcommerceAPI.Persistence.Seeds;
 
@@ -20,6 +21,9 @@ using ecommerceAPI.src.EcommerceAPI.Persistence.Seeds;
 
 
 var builder = WebApplication.CreateBuilder(args);
+var webRootPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+Directory.CreateDirectory(Path.Combine(webRootPath, "images"));
+builder.WebHost.UseWebRoot(webRootPath);
 // log para probar
 Console.WriteLine("DefaultConnection => " +
     builder.Configuration.GetConnectionString("DefaultConnection"));
@@ -28,11 +32,20 @@ Console.WriteLine("DefaultConnection => " +
 
 MapsterConfig.RegisterMappings();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 builder.Services.AddResponseCaching();
 
 builder.Services.AddDbContext<EcommerceDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions => sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(10),
+            errorNumbersToAdd: null))
     .UseSeeding((context, _) =>
   {
       var appContext = (EcommerceDbContext)context;
@@ -74,6 +87,8 @@ builder.Services.AddScoped<IReviewService, ReviewService>();
 builder.Services.AddScoped<IStockMovementRepository, StockMovementRepository>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ICartRepository, CartRepository>();
+builder.Services.AddScoped<ICartService, CartService>();
 
 var key = Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]!);
 
@@ -102,7 +117,7 @@ var apiVersioning = builder.Services.AddApiVersioning(options =>
     options.AssumeDefaultVersionWhenUnspecified = true;
     options.DefaultApiVersion = new Asp.Versioning.ApiVersion(1, 0);
     options.ReportApiVersions = true;
-    options.ApiVersionReader = ApiVersionReader.Combine(new QueryStringApiVersionReader("api-version"));
+    options.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
 apiVersioning.AddApiExplorer(options =>
 {
@@ -143,6 +158,15 @@ builder.Services.AddSwaggerGen(
     }
 );
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    var dbContext = services.GetRequiredService<EcommerceDbContext>();
+    dbContext.Database.Migrate();
+    await AdminSeed.SeedAdminAsync(services, app.Configuration);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 { 
@@ -156,9 +180,16 @@ if (app.Environment.IsDevelopment())
 
 app.MapGet("/", () => "Hola desde Ecommerce API en Docker con Swagger");
 
-app.UseStaticFiles(); 
+if (!string.IsNullOrWhiteSpace(app.Environment.WebRootPath) && Directory.Exists(app.Environment.WebRootPath))
+{
+    app.UseStaticFiles();
+}
+
 app.UseCors("AllowAll");
-app.UseHttpsRedirection();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 app.UseResponseCaching();
 app.UseAuthentication();
 app.UseAuthorization(); 

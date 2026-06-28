@@ -1,3 +1,6 @@
+using System.ComponentModel.DataAnnotations;
+using ecommerceAPI.src.EcommerceAPI.Domain.Enums;
+
 namespace ecommerceAPI.src.EcommerceAPI.Application.DTOs
 {
     public class OrderDto
@@ -5,17 +8,20 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.DTOs
         public Guid Id { get; set; }
         public DateTime OrderDate { get; set; }
         public decimal TotalAmount { get; set; }
-        public string Status { get; set; } = string.Empty;
+        public OrderStatus Status { get; set; }
+        public ShippingDto? Shipping { get; set; }
         public IEnumerable<OrderItemDto> Items { get; set; } = new List<OrderItemDto>();
     }
 
     public class CreateOrderDto
     {
-        public IEnumerable<CreateOrderItemDto> Items { get; set; } = new List<CreateOrderItemDto>();
+        [Required]
+        [MaxLength(200)]
+        public string ShippingAddress { get; set; } = string.Empty;
     }
 
     public class UpdateOrderDto
     {
-        public string Status { get; set; } = string.Empty;
+        public OrderStatus Status { get; set; }
     }
 }

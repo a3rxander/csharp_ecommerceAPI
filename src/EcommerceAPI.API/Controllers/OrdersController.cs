@@ -53,14 +53,26 @@ namespace ecommerceAPI.src.EcommerceAPI.API.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateOrder([FromBody] CreateOrderDto orderDto)
         {
+            if (orderDto == null)
+            {
+                return BadRequest("Order data is required.");
+            }
+
             var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userIdValue == null || !Guid.TryParse(userIdValue, out var userId))
             {
                 return Unauthorized("Invalid token.");
             }
 
-            var createdOrder = await _orderService.CreateOrderAsync(userIdValue, orderDto);
-            return CreatedAtAction(nameof(GetOrderById), new { id = createdOrder.Id }, createdOrder);
+            try
+            {
+                var createdOrder = await _orderService.CreateOrderAsync(userIdValue, orderDto);
+                return CreatedAtAction(nameof(GetOrderById), new { id = createdOrder.Id, version = "1.0" }, createdOrder);
+            }
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPut("{id}")]

@@ -21,14 +21,34 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public async Task<ReviewDto> CreateReviewAsync(CreateReviewDto reviewDto)
         {
-            if (!await _productRepository.ExistsAsync(reviewDto.ProductId))
+            reviewDto.Comment ??= string.Empty;
+            ValidateReview(reviewDto.Rating, reviewDto.Comment);
+
+            if (reviewDto.ProductId == Guid.Empty)
+            {
+                throw new ArgumentException("ProductId is required.");
+            }
+
+            if (!Guid.TryParse(reviewDto.UserId, out var userId))
+            {
+                throw new ArgumentException("Invalid UserId");
+            }
+
+            var user = await _userRepository.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new ArgumentException("Invalid UserId");
+            }
+
+            var product = await _productRepository.GetByIdAsync(reviewDto.ProductId);
+            if (product == null)
             {
                 throw new ArgumentException("Invalid ProductId");
             }
 
-            if (!Guid.TryParse(reviewDto.UserId, out var userId) || !await _userRepository.ExistsAsync(userId))
+            if (product.SellerId == reviewDto.UserId)
             {
-                throw new ArgumentException("Invalid UserId");
+                throw new UnauthorizedAccessException("Product owners cannot review their own products.");
             }
 
             var review = reviewDto.Adapt<Review>();
@@ -39,7 +59,9 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
             review.IsActive = true;
 
             var createdReview = await _reviewRepository.AddAsync(review);
-            return createdReview.Adapt<ReviewDto>();
+            var createdReviewDto = createdReview.Adapt<ReviewDto>();
+            createdReviewDto.ReviewerName = GetUserDisplayName(user);
+            return createdReviewDto;
         }
 
         public async Task<bool> DeleteReviewAsync(Guid id)
@@ -79,16 +101,41 @@ namespace ecommerceAPI.src.EcommerceAPI.Application.Services
 
         public async Task<bool> UpdateReviewAsync(Guid id, UpdateReviewDto reviewDto)
         {
+            reviewDto.Comment ??= string.Empty;
+            ValidateReview(reviewDto.Rating, reviewDto.Comment);
+
             var existingReview = await _reviewRepository.GetByIdAsync(id);
             if (existingReview == null || !existingReview.IsActive)
             {
                 return false;
             }
 
-            reviewDto.Adapt(existingReview);
+            existingReview.Rating = reviewDto.Rating;
+            existingReview.Comment = reviewDto.Comment;
             existingReview.UpdatedAt = DateTime.UtcNow;
             await _reviewRepository.UpdateAsync(existingReview);
             return true;
+        }
+
+        private static void ValidateReview(int rating, string comment)
+        {
+            if (rating < 1 || rating > 5)
+            {
+                throw new ArgumentException("Rating must be between 1 and 5.");
+            }
+
+            comment ??= string.Empty;
+
+            if (comment.Length > 1000)
+            {
+                throw new ArgumentException("Comment cannot exceed 1000 characters.");
+            }
+        }
+
+        private static string GetUserDisplayName(User user)
+        {
+            var fullName = $"{user.FirstName} {user.LastName}".Trim();
+            return string.IsNullOrWhiteSpace(fullName) ? user.UserName ?? string.Empty : fullName;
         }
     }
 }

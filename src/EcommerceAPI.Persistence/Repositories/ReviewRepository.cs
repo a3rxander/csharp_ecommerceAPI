@@ -38,6 +38,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Reviews
                 .Where(r => r.IsActive)
+                .Include(r => r.User)
                 .OrderByDescending(r => r.ReviewDate)
                 .ToListAsync();
         }
@@ -46,6 +47,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Reviews
                 .Where(r => r.Id == id && r.IsActive)
+                .Include(r => r.User)
                 .FirstOrDefaultAsync();
         }
 
@@ -53,6 +55,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Reviews
                 .Where(r => r.ProductId == productId && r.IsActive)
+                .Include(r => r.User)
                 .OrderByDescending(r => r.ReviewDate)
                 .ToListAsync();
         }
@@ -61,6 +64,7 @@ namespace ecommerceAPI.src.EcommerceAPI.Persistence.Repositories
         {
             return await _db.Reviews
                 .Where(r => r.UserId == userId && r.IsActive)
+                .Include(r => r.User)
                 .OrderByDescending(r => r.ReviewDate)
                 .ToListAsync();
         }
